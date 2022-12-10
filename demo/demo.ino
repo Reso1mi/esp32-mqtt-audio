@@ -2,29 +2,40 @@
 #include <HTTPClient.h>
 
 const int buttonAPin = 0;
-const char* ssid     = "TP-LINK_77FF";//修改为你的WIFI账号与密码
-const char* password = "qwer02..";
+// const char* ssid     = "TP-LINK_77FF";//修改为你的WIFI账号与密码
+// const char* password = "qwer02..";
 
 // const char* mqtt_server = "124.223.103.23";//这是树莓的MQTT服务器地址
 
 void wifiInit(void)//连接WIFI
 {
-    WiFi.mode(WIFI_STA);
     Serial.begin(115200);
 
-    WiFi.begin(ssid, password);             // Connect to the network
-    Serial.print("Connecting to ");
-    Serial.print(ssid);
+    //Init WiFi as Station, start SmartConfig
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.beginSmartConfig();
 
-    while (WiFi.status() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
+    //Wait for SmartConfig packet from mobile
+    Serial.println("Waiting for SmartConfig.");
+    while (!WiFi.smartConfigDone()) {
       delay(500);
-      Serial.print('.');
+      Serial.print(".");
     }
 
-    Serial.println('\n');
-    Serial.println("Connection established!");
-    Serial.print("IP address:\t");
-    Serial.println(WiFi.localIP()); 
+    Serial.println("");
+    Serial.println("SmartConfig received.");
+
+    // Wait for WiFi to connect to AP
+    Serial.println("Waiting for WiFi");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+
+    Serial.println("WiFi Connected.");
+
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
 }
 
 void httpTest() {
